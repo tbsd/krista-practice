@@ -17,7 +17,7 @@ public class App {
                 System.out.println(macStr);
                 Enumeration<InetAddress> inetAddresses = inter.getInetAddresses();
                 for (InetAddress address : Collections.list(inetAddresses)) {
-                    String ip = address.getHostAddress();
+                    String ip = address.getHostAddress().split("%")[0];
                     System.out.print("Ip: ");
                     System.out.println(ip);
                 }
