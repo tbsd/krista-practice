@@ -1,4 +1,4 @@
-package ru.krista.edu.distrib.tech.socket;
+package ru.krista.edu.distrib.tech.sockethttps://github.com/tbsd/krista-practice;
 
 import org.junit.jupiter.api.Test;
 

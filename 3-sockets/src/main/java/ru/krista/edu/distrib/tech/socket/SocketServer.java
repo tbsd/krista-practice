@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class EchoMultiServer {
+public class SocketServer {
     private ServerSocket serverSocket;
 
     public void start(int port) throws IOException {
@@ -51,7 +51,7 @@ public class EchoMultiServer {
     }
 
     public static void main(String[] args) throws IOException {
-        EchoMultiServer server = new EchoMultiServer();
+        SocketServer server = new SocketServer();
         server.start(6000);
     }
 }
