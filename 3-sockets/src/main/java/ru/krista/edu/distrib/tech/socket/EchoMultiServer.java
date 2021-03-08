@@ -38,11 +38,7 @@ public class EchoMultiServer {
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    if (".".equals(inputLine)) {
-                        out.println("bye");
-                        break;
-                    }
-                    out.println(inputLine);
+                    out.println("Kurbatov");
                 }
 
                 in.close();
@@ -56,6 +52,6 @@ public class EchoMultiServer {
 
     public static void main(String[] args) throws IOException {
         EchoMultiServer server = new EchoMultiServer();
-        server.start(6666);
+        server.start(6000);
     }
 }
