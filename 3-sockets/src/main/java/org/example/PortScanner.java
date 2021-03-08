@@ -1,4 +1,4 @@
-package ru.krista.edu.distrib.tech.socket;
+package org.example;
 
 import java.io.IOException;
 import java.net.ConnectException;
