@@ -61,4 +61,26 @@ public class SerializerTest {
         System.out.println(serializedAgain);
         assertEquals(serialized, serializedAgain);
     }
+
+    @Test
+    public void shouldSerializeToXml() throws JsonProcessingException {
+        Person person = new Person("Asdf", "Meh",
+                new Address("Krasnaya ploshad", "Moskow", 111111),
+                new ArrayList<PhoneNumber>(Arrays.asList(new PhoneNumber("7-356-322-1234"))));
+        String data = serializer.toXml(person);
+        Person deserialized = (Person) serializer.fromXml(data, Person.class);
+        assertEquals(person, deserialized);
+    }
+
+    @Test
+    public void shouldDeserializeFromXml() throws JsonProcessingException {
+        Person person = new Person("Asdf", "Meh",
+                new Address("Krasnaya ploshad", "Moskow", 111111),
+                new ArrayList<PhoneNumber>(Arrays.asList(new PhoneNumber("7-356-322-1234"))));
+        String serialized = "<Person><firstName>Asdf</firstName><lastName>Meh</lastName><address><streetAddress>Krasnaya ploshad</streetAddress><city>Moskow</city><postalCode>111111</postalCode></address><phoneNumbers><phoneNumbers><phone>7-356-322-1234</phone></phoneNumbers></phoneNumbers></Person>";
+        Person deserialized = (Person) serializer.fromXml(serialized, Person.class);
+        String serializedAgain = serializer.toXml(deserialized);
+        System.out.println(serializedAgain);
+        assertEquals(serialized, serializedAgain);
+    }
 }
