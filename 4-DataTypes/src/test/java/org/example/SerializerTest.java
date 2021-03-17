@@ -12,7 +12,7 @@ public class SerializerTest {
     private Serializer serializer = new Serializer();
 
     @Test
-    public void shouldSerializeToJson() {
+    public void shouldSerializeToJson() throws JsonProcessingException {
         Person person = new Person("Asdf", "Meh",
                 new Address("Krasnaya ploshad", "Moskow", 111111),
                 new ArrayList<PhoneNumber>(Arrays.asList(new PhoneNumber("7-356-322-1234"))));
@@ -22,7 +22,7 @@ public class SerializerTest {
     }
 
     @Test
-    public void shouldDeserializeFromJson() {
+    public void shouldDeserializeFromJson() throws JsonProcessingException {
         Person person = new Person("Asdf", "Meh",
                 new Address("Krasnaya ploshad", "Moskow", 111111),
                 new ArrayList<PhoneNumber>(Arrays.asList(new PhoneNumber("7-356-322-1234"))));

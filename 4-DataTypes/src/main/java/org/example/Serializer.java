@@ -9,16 +9,16 @@ import com.google.gson.Gson;
 import java.lang.reflect.Type;
 
 public class Serializer {
-    private Gson gson = new Gson();
+    private ObjectMapper jsonMapper = new ObjectMapper();
     private ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private XmlMapper xmlMapper = new XmlMapper();
 
-    public String toJson(Object obj) {
-        return gson.toJson(obj);
+    public String toJson(Object obj) throws JsonProcessingException {
+        return jsonMapper.writeValueAsString(obj);
     }
 
-    public Object fromJson(String data, Class type) {
-        return gson.fromJson(data, type);
+    public Object fromJson(String data, Class type) throws JsonProcessingException {
+        return jsonMapper.readValue(data, type);
     }
     public String toYaml(Object obj) throws JsonProcessingException {
         return yamlMapper.writeValueAsString(obj);
