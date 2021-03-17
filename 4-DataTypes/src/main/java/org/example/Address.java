@@ -1,9 +1,11 @@
 package org.example;
 
 public class Address {
-    private String streetAddress;
-    private String city;
-    private int postalCode;
+    public String streetAddress;
+    public String city;
+    public int postalCode;
+
+    public Address() {}
 
     Address(String streetAddress, String city, int postalCode) {
         this.streetAddress = streetAddress;

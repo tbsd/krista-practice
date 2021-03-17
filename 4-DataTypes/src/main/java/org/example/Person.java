@@ -3,12 +3,14 @@ package org.example;
 import java.util.ArrayList;
 
 public class Person {
-    private String firstName;
-    private String lastName;
-    private Address address;
-    private ArrayList<PhoneNumber> phoneNumbers;
+    public String firstName;
+    public String lastName;
+    public Address address;
+    public ArrayList<PhoneNumber> phoneNumbers;
 
-    Person(String firstName, String lastName, Address address, ArrayList<PhoneNumber> phoneNumbers) {
+    public Person() {}
+
+    public Person(String firstName, String lastName, Address address, ArrayList<PhoneNumber> phoneNumbers) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;

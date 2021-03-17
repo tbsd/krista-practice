@@ -1,7 +1,9 @@
 package org.example;
 
 public class PhoneNumber {
-    private String phone;
+    public String phone;
+
+    public PhoneNumber() {}
 
     PhoneNumber(String phone) {
         this.phone = phone;
