@@ -29,19 +29,4 @@ public class PersonResourceTest {
         assertEquals(data, responseText);
     }
 
-    @Test
-    public void testAddRecord() {
-        // https://stackoverflow.com/questions/34886172/okhttp-put-example
-//        String newPerson =
-//        Request request = new Request.Builder()
-//                .url("http://localhost:8080/persons")
-//                .put(body)
-//                .build();
-
-    }
-
-    @Test
-    public void testGetOneRecord() {
-
-    }
 }
