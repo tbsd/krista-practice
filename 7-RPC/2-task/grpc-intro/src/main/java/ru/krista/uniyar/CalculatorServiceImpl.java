@@ -10,10 +10,11 @@ import javax.inject.Singleton;
 public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServiceImplBase {
     @Override
     public void calculate(CalculatorProto.CalculatorRequest request, StreamObserver<CalculatorProto.CalculatorResponse> responseObserver) {
-        Double number1 = request.getNumber1();
-        Double number2 = request.getNumber2();
+        double number1 = request.getNumber1();
+        double number2 = request.getNumber2();
         CalculatorProto.CalculatorRequest.OperationType operation = request.getOperation();
-        Double result = Double.NaN;
+        double result = 0;
+        CalculatorProto.CalculatorResponse.Builder builder = CalculatorProto.CalculatorResponse.newBuilder();
 
         switch (operation) {
             case ADD:
@@ -26,10 +27,17 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
                 result = number1 * number2;
                 break;
             case DIVIDE:
-                result = number1 / number2;
+                if (number2 == 0) {
+                    builder.setError("Error: division by zero.");
+                } else {
+                    result = number1 / number2;
+                }
                 break;
+            default:
+                builder.setError("Error: unsupported operation.");
         }
-        responseObserver.onNext(CalculatorProto.CalculatorResponse.newBuilder().setResult(result).build());
+        builder.setResult(result);
+        responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
     }
 }
