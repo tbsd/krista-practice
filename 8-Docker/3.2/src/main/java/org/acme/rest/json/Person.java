@@ -26,7 +26,7 @@ public class Person {
         this.website = website;
         this.company = company;
         this.salary = salary;
-        currency = "RUB";
+        currency = "EUR";
     }
 
     @Override

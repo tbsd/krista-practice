@@ -73,14 +73,16 @@ public class PersonResource {
                     Response response = call.execute();
                     String responseText = response.body().string();
                     ObjectNode node = new ObjectMapper().readValue(responseText, ObjectNode.class);
-                    if (node.has("conversionMultiple"))
+                    System.out.println(responseText);
+                    if (node.has("conversionMultiple")) {
                         ratio = Double.parseDouble(node.get("conversionMultiple").toString());
-                    person.setSalary((int) (person.getSalary() / ratio));
-                    person.setCurrency(newCurrency);
+                        person.setSalary((int) (person.getSalary() / ratio));
+                        person.setCurrency(newCurrency);
+                    }
                 }
             }
         }
-        return personService.getAll();
+        return persons;
     }
 
 }
