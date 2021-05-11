@@ -1,5 +1,7 @@
 package org.acme.rest.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -70,6 +72,9 @@ public class PersonResource {
                     Call call = client.newCall(request);
                     Response response = call.execute();
                     String responseText = response.body().string();
+                    ObjectNode node = new ObjectMapper().readValue(responseText, ObjectNode.class);
+                    if (node.has("conversionMultiple"))
+                        ratio = Double.parseDouble(node.get("conversionMultiple").toString());
                     person.setSalary((int) (person.getSalary() / ratio));
                     person.setCurrency(newCurrency);
                 }
