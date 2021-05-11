@@ -16,7 +16,7 @@ public class Person {
 
     public Person() {}
 
-    public Person(String id, String name, String username, String email, Address address, String phone, String website, Company company) {
+    public Person(String id, String name, String username, String email, Address address, String phone, String website, Company company, int salary) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -25,6 +25,7 @@ public class Person {
         this.phone = phone;
         this.website = website;
         this.company = company;
+        this.salary = salary;
     }
 
     @Override
