@@ -67,7 +67,7 @@ public class PersonResource {
                     double ratio = 1;
                     OkHttpClient client = new OkHttpClient();
                     Request request = new Request.Builder()
-                            .url("http://localhost:8000/" + person.getCurrency() + "/to/" + newCurrency)
+                            .url("http://localhost:8000/currency-exchange/from/" + person.getCurrency() + "/to/" + newCurrency)
                             .build();
                     Call call = client.newCall(request);
                     Response response = call.execute();
@@ -76,7 +76,7 @@ public class PersonResource {
                     System.out.println(responseText);
                     if (node.has("conversionMultiple")) {
                         ratio = Double.parseDouble(node.get("conversionMultiple").toString());
-                        person.setSalary((int) (person.getSalary() / ratio));
+                        person.setSalary((int) (person.getSalary() * ratio));
                         person.setCurrency(newCurrency);
                     }
                 }
