@@ -1,0 +1,241 @@
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/font-awesome/all.min.css" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Todo App</title>
+<script>'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function App() {
+    var _ReactBootstrap = ReactBootstrap,
+        Container = _ReactBootstrap.Container,
+        Row = _ReactBootstrap.Row,
+        Col = _ReactBootstrap.Col;
+
+    return React.createElement(
+        Container,
+        null,
+        React.createElement(
+            Row,
+            null,
+            React.createElement(
+                Col,
+                { md: { offset: 3, span: 6 } },
+                React.createElement(TodoListCard, null)
+            )
+        )
+    );
+}
+
+function TodoListCard() {
+    var _React$useState = React.useState(null),
+        _React$useState2 = _slicedToArray(_React$useState, 2),
+        items = _React$useState2[0],
+        setItems = _React$useState2[1];
+
+    React.useEffect(function () {
+        fetch('/items').then(function (r) {
+            return r.json();
+        }).then(setItems);
+    }, []);
+
+    var onNewItem = React.useCallback(function (newItem) {
+        setItems([].concat(_toConsumableArray(items), [newItem]));
+    }, [items]);
+
+    var onItemUpdate = React.useCallback(function (item) {
+        var index = items.findIndex(function (i) {
+            return i.id === item.id;
+        });
+        setItems([].concat(_toConsumableArray(items.slice(0, index)), [item], _toConsumableArray(items.slice(index + 1))));
+    }, [items]);
+
+    var onItemRemoval = React.useCallback(function (item) {
+        var index = items.findIndex(function (i) {
+            return i.id === item.id;
+        });
+        setItems([].concat(_toConsumableArray(items.slice(0, index)), _toConsumableArray(items.slice(index + 1))));
+    }, [items]);
+
+    if (items === null) return 'Loading...';
+
+    return React.createElement(
+        React.Fragment,
+        null,
+        React.createElement(AddItemForm, { onNewItem: onNewItem }),
+        items.length === 0 && React.createElement(
+            'p',
+            { className: 'text-center' },
+            'No items yet! Add one above!'
+        ),
+        items.map(function (item) {
+            return React.createElement(ItemDisplay, {
+                item: item,
+                key: item.id,
+                onItemUpdate: onItemUpdate,
+                onItemRemoval: onItemRemoval
+            });
+        })
+    );
+}
+
+function AddItemForm(_ref) {
+    var onNewItem = _ref.onNewItem;
+    var _ReactBootstrap2 = ReactBootstrap,
+        Form = _ReactBootstrap2.Form,
+        InputGroup = _ReactBootstrap2.InputGroup,
+        Button = _ReactBootstrap2.Button;
+
+    var _React$useState3 = React.useState(''),
+        _React$useState4 = _slicedToArray(_React$useState3, 2),
+        newItem = _React$useState4[0],
+        setNewItem = _React$useState4[1];
+
+    var _React$useState5 = React.useState(false),
+        _React$useState6 = _slicedToArray(_React$useState5, 2),
+        submitting = _React$useState6[0],
+        setSubmitting = _React$useState6[1];
+
+    var submitNewItem = function submitNewItem(e) {
+        e.preventDefault();
+        setSubmitting(true);
+        fetch('/items', {
+            method: 'POST',
+            body: JSON.stringify({ name: newItem }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(function (r) {
+            return r.json();
+        }).then(function (item) {
+            onNewItem(item);
+            setSubmitting(false);
+            setNewItem('');
+        });
+    };
+
+    return React.createElement(
+        Form,
+        { onSubmit: submitNewItem },
+        React.createElement(
+            InputGroup,
+            { className: 'mb-3' },
+            React.createElement(Form.Control, {
+                value: newItem,
+                onChange: function onChange(e) {
+                    return setNewItem(e.target.value);
+                },
+                type: 'text',
+                placeholder: 'New Item',
+                'aria-describedby': 'basic-addon1'
+            }),
+            React.createElement(
+                InputGroup.Append,
+                null,
+                React.createElement(
+                    Button,
+                    {
+                        type: 'submit',
+                        variant: 'success',
+                        disabled: !newItem.length,
+                        className: submitting ? 'disabled' : ''
+                    },
+                    submitting ? 'Adding...' : 'Add Item'
+                )
+            )
+        )
+    );
+}
+
+function ItemDisplay(_ref2) {
+    var item = _ref2.item,
+        onItemUpdate = _ref2.onItemUpdate,
+        onItemRemoval = _ref2.onItemRemoval;
+    var _ReactBootstrap3 = ReactBootstrap,
+        Container = _ReactBootstrap3.Container,
+        Row = _ReactBootstrap3.Row,
+        Col = _ReactBootstrap3.Col,
+        Button = _ReactBootstrap3.Button;
+
+
+    var toggleCompletion = function toggleCompletion() {
+        fetch('/items/' + item.id, {
+            method: 'PUT',
+            body: JSON.stringify({
+                name: item.name,
+                completed: !item.completed
+            }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(function (r) {
+            return r.json();
+        }).then(onItemUpdate);
+    };
+
+    var removeItem = function removeItem() {
+        fetch('/items/' + item.id, { method: 'DELETE' }).then(function () {
+            return onItemRemoval(item);
+        });
+    };
+
+    return React.createElement(
+        Container,
+        { fluid: true, className: 'item ' + (item.completed && 'completed') },
+        React.createElement(
+            Row,
+            null,
+            React.createElement(
+                Col,
+                { xs: 1, className: 'text-center' },
+                React.createElement(
+                    Button,
+                    {
+                        className: 'toggles',
+                        size: 'sm',
+                        variant: 'link',
+                        onClick: toggleCompletion,
+                        'aria-label': item.completed ? 'Mark item as incomplete' : 'Mark item as complete'
+                    },
+                    React.createElement('i', {
+                        className: 'far ' + (item.completed ? 'fa-check-square' : 'fa-square')
+                    })
+                )
+            ),
+            React.createElement(
+                Col,
+                { xs: 10, className: 'name' },
+                item.name
+            ),
+            React.createElement(
+                Col,
+                { xs: 1, className: 'text-center remove' },
+                React.createElement(
+                    Button,
+                    {
+                        size: 'sm',
+                        variant: 'link',
+                        onClick: removeItem,
+                        'aria-label': 'Remove Item'
+                    },
+                    React.createElement('i', { className: 'fa fa-trash text-danger' })
+                )
+            )
+        )
+    );
+}
+
+ReactDOM.render(React.createElement(App, null), document.getElementById('root'));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFwcC5qcyJdLCJuYW1lcyI6WyJBcHAiLCJSZWFjdEJvb3RzdHJhcCIsIkNvbnRhaW5lciIsIlJvdyIsIkNvbCIsIm9mZnNldCIsInNwYW4iLCJUb2RvTGlzdENhcmQiLCJSZWFjdCIsInVzZVN0YXRlIiwiaXRlbXMiLCJzZXRJdGVtcyIsInVzZUVmZmVjdCIsImZldGNoIiwidGhlbiIsInIiLCJqc29uIiwib25OZXdJdGVtIiwidXNlQ2FsbGJhY2siLCJuZXdJdGVtIiwib25JdGVtVXBkYXRlIiwiaW5kZXgiLCJmaW5kSW5kZXgiLCJpIiwiaWQiLCJpdGVtIiwic2xpY2UiLCJvbkl0ZW1SZW1vdmFsIiwibGVuZ3RoIiwibWFwIiwiQWRkSXRlbUZvcm0iLCJGb3JtIiwiSW5wdXRHcm91cCIsIkJ1dHRvbiIsInNldE5ld0l0ZW0iLCJzdWJtaXR0aW5nIiwic2V0U3VibWl0dGluZyIsInN1Ym1pdE5ld0l0ZW0iLCJlIiwicHJldmVudERlZmF1bHQiLCJtZXRob2QiLCJib2R5IiwiSlNPTiIsInN0cmluZ2lmeSIsIm5hbWUiLCJoZWFkZXJzIiwidGFyZ2V0IiwidmFsdWUiLCJJdGVtRGlzcGxheSIsInRvZ2dsZUNvbXBsZXRpb24iLCJjb21wbGV0ZWQiLCJyZW1vdmVJdGVtIiwiUmVhY3RET00iLCJyZW5kZXIiLCJkb2N1bWVudCIsImdldEVsZW1lbnRCeUlkIl0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFBQSxTQUFTQSxHQUFULEdBQWU7QUFBQSwwQkFDcUJDLGNBRHJCO0FBQUEsUUFDSEMsU0FERyxtQkFDSEEsU0FERztBQUFBLFFBQ1FDLEdBRFIsbUJBQ1FBLEdBRFI7QUFBQSxRQUNhQyxHQURiLG1CQUNhQSxHQURiOztBQUVYLFdBQ0k7QUFBQyxpQkFBRDtBQUFBO0FBQ0k7QUFBQyxlQUFEO0FBQUE7QUFDSTtBQUFDLG1CQUFEO0FBQUEsa0JBQUssSUFBSSxFQUFFQyxRQUFRLENBQVYsRUFBYUMsTUFBTSxDQUFuQixFQUFUO0FBQ0ksb0NBQUMsWUFBRDtBQURK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QUFEO0FBQUEsa0JBQUssSUFBSSxDQUFULEVBQVksV0FBVSxvQkFBdEI7QUFDSTtBQUFDLDBCQUFEO0FBQUE7QUFDSSw4QkFBSyxJQURUO0FBRUksaUNBQVEsTUFGWjtBQUdJLGlDQUFTTyxVQUhiO0FBSUksc0NBQVc7QUFKZjtBQU1JLCtDQUFHLFdBQVUseUJBQWI7QUFOSjtBQURKO0FBdkJKO0FBREosS0FESjtBQXNDSDs7QUFFREMsU0FBU0MsTUFBVCxDQUFnQixvQkFBQyxHQUFELE9BQWhCLEVBQXlCQyxTQUFTQyxjQUFULENBQXdCLE1BQXhCLENBQXpCIiwiZmlsZSI6ImFwcC5qcyIsInNvdXJjZXNDb250ZW50IjpbImZ1bmN0aW9uIEFwcCgpIHtcbiAgICBjb25zdCB7IENvbnRhaW5lciwgUm93LCBDb2wgfSA9IFJlYWN0Qm9vdHN0cmFwO1xuICAgIHJldHVybiAoXG4gICAgICAgIDxDb250YWluZXI+XG4gICAgICAgICAgICA8Um93PlxuICAgICAgICAgICAgICAgIDxDb2wgbWQ9e3sgb2Zmc2V0OiAzLCBzcGFuOiA2IH19PlxuICAgICAgICAgICAgICAgICAgICA8VG9kb0xpc3RDYXJkIC8+XG4gICAgICAgICAgICAgICAgPC9Db2w+XG4gICAgICAgICAgICA8L1Jvdz5cbiAgICAgICAgPC9Db250YWluZXI+XG4gICAgKTtcbn1cblxuZnVuY3Rpb24gVG9kb0xpc3RDYXJkKCkge1xuICAgIGNvbnN0IFtpdGVtcywgc2V0SXRlbXNdID0gUmVhY3QudXNlU3RhdGUobnVsbCk7XG5cbiAgICBSZWFjdC51c2VFZmZlY3QoKCkgPT4ge1xuICAgICAgICBmZXRjaCgnL2l0ZW1zJylcbiAgICAgICAgICAgIC50aGVuKHIgPT4gci5qc29uKCkpXG4gICAgICAgICAgICAudGhlbihzZXRJdGVtcyk7XG4gICAgfSwgW10pO1xuXG4gICAgY29uc3Qgb25OZXdJdGVtID0gUmVhY3QudXNlQ2FsbGJhY2soXG4gICAgICAgIG5ld0l0ZW0gPT4ge1xuICAgICAgICAgICAgc2V0SXRlbXMoWy4uLml0ZW1zLCBuZXdJdGVtXSk7XG4gICAgICAgIH0sXG4gICAgICAgIFtpdGVtc10sXG4gICAgKTtcblxuICAgIGNvbnN0IG9uSXRlbVVwZGF0ZSA9IFJlYWN0LnVzZUNhbGxiYWNrKFxuICAgICAgICBpdGVtID0+IHtcbiAgICAgICAgICAgIGNvbnN0IGluZGV4ID0gaXRlbXMuZmluZEluZGV4KGkgPT4gaS5pZCA9PT0gaXRlbS5pZCk7XG4gICAgICAgICAgICBzZXRJdGVtcyhbXG4gICAgICAgICAgICAgICAgLi4uaXRlbXMuc2xpY2UoMCwgaW5kZXgpLFxuICAgICAgICAgICAgICAgIGl0ZW0sXG4gICAgICAgICAgICAgICAgLi4uaXRlbXMuc2xpY2UoaW5kZXggKyAxKSxcbiAgICAgICAgICAgIF0pO1xuICAgICAgICB9LFxuICAgICAgICBbaXRlbXNdLFxuICAgICk7XG5cbiAgICBjb25zdCBvbkl0ZW1SZW1vdmFsID0gUmVhY3QudXNlQ2FsbGJhY2soXG4gICAgICAgIGl0ZW0gPT4ge1xuICAgICAgICAgICAgY29uc3QgaW5kZXggPSBpdGVtcy5maW5kSW5kZXgoaSA9PiBpLmlkID09PSBpdGVtLmlkKTtcbiAgICAgICAgICAgIHNldEl0ZW1zKFsuLi5pdGVtcy5zbGljZSgwLCBpbmRleCksIC4uLml0ZW1zLnNsaWNlKGluZGV4ICsgMSldKTtcbiAgICAgICAgfSxcbiAgICAgICAgW2l0ZW1zXSxcbiAgICApO1xuXG4gICAgaWYgKGl0ZW1zID09PSBudWxsKSByZXR1cm4gJ0xvYWRpbmcuLi4nO1xuXG4gICAgcmV0dXJuIChcbiAgICAgICAgPFJlYWN0LkZyYWdtZW50PlxuICAgICAgICAgICAgPEFkZEl0ZW1Gb3JtIG9uTmV3SXRlbT17b25OZXdJdGVtfSAvPlxuICAgICAgICAgICAge2l0ZW1zLmxlbmd0aCA9PT0gMCAmJiAoXG4gICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXJcIj5ObyBpdGVtcyB5ZXQhIEFkZCBvbmUgYWJvdmUhPC9wPlxuICAgICAgICAgICAgKX1cbiAgICAgICAgICAgIHtpdGVtcy5tYXAoaXRlbSA9PiAoXG4gICAgICAgICAgICAgICAgPEl0ZW1EaXNwbGF5XG4gICAgICAgICAgICAgICAgICAgIGl0ZW09e2l0ZW19XG4gICAgICAgICAgICAgICAgICAgIGtleT17aXRlbS5pZH1cbiAgICAgICAgICAgICAgICAgICAgb25JdGVtVXBkYXRlPXtvbkl0ZW1VcGRhdGV9XG4gICAgICAgICAgICAgICAgICAgIG9uSXRlbVJlbW92YWw9e29uSXRlbVJlbW92YWx9XG4gICAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICkpfVxuICAgICAgICA8L1JlYWN0LkZyYWdtZW50PlxuICAgICk7XG59XG5cbmZ1bmN0aW9uIEFkZEl0ZW1Gb3JtKHsgb25OZXdJdGVtIH0pIHtcbiAgICBjb25zdCB7IEZvcm0sIElucHV0R3JvdXAsIEJ1dHRvbiB9ID0gUmVhY3RCb290c3RyYXA7XG5cbiAgICBjb25zdCBbbmV3SXRlbSwgc2V0TmV3SXRlbV0gPSBSZWFjdC51c2VTdGF0ZSgnJyk7XG4gICAgY29uc3QgW3N1Ym1pdHRpbmcsIHNldFN1Ym1pdHRpbmddID0gUmVhY3QudXNlU3RhdGUoZmFsc2UpO1xuXG4gICAgY29uc3Qgc3VibWl0TmV3SXRlbSA9IGUgPT4ge1xuICAgICAgICBlLnByZXZlbnREZWZhdWx0KCk7XG4gICAgICAgIHNldFN1Ym1pdHRpbmcodHJ1ZSk7XG4gICAgICAgIGZldGNoKCcvaXRlbXMnLCB7XG4gICAgICAgICAgICBtZXRob2Q6ICdQT1NUJyxcbiAgICAgICAgICAgIGJvZHk6IEpTT04uc3RyaW5naWZ5KHsgbmFtZTogbmV3SXRlbSB9KSxcbiAgICAgICAgICAgIGhlYWRlcnM6IHsgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi9qc29uJyB9LFxuICAgICAgICB9KVxuICAgICAgICAgICAgLnRoZW4ociA9PiByLmpzb24oKSlcbiAgICAgICAgICAgIC50aGVuKGl0ZW0gPT4ge1xuICAgICAgICAgICAgICAgIG9uTmV3SXRlbShpdGVtKTtcbiAgICAgICAgICAgICAgICBzZXRTdWJtaXR0aW5nKGZhbHNlKTtcbiAgICAgICAgICAgICAgICBzZXROZXdJdGVtKCcnKTtcbiAgICAgICAgICAgIH0pO1xuICAgIH07XG5cbiAgICByZXR1cm4gKFxuICAgICAgICA8Rm9ybSBvblN1Ym1pdD17c3VibWl0TmV3SXRlbX0+XG4gICAgICAgICAgICA8SW5wdXRHcm91cCBjbGFzc05hbWU9XCJtYi0zXCI+XG4gICAgICAgICAgICAgICAgPEZvcm0uQ29udHJvbFxuICAgICAgICAgICAgICAgICAgICB2YWx1ZT17bmV3SXRlbX1cbiAgICAgICAgICAgICAgICAgICAgb25DaGFuZ2U9e2UgPT4gc2V0TmV3SXRlbShlLnRhcmdldC52YWx1ZSl9XG4gICAgICAgICAgICAgICAgICAgIHR5cGU9XCJ0ZXh0XCJcbiAgICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCJOZXcgSXRlbVwiXG4gICAgICAgICAgICAgICAgICAgIGFyaWEtZGVzY3JpYmVkYnk9XCJiYXNpYy1hZGRvbjFcIlxuICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgICAgPElucHV0R3JvdXAuQXBwZW5kPlxuICAgICAgICAgICAgICAgICAgICA8QnV0dG9uXG4gICAgICAgICAgICAgICAgICAgICAgICB0eXBlPVwic3VibWl0XCJcbiAgICAgICAgICAgICAgICAgICAgICAgIHZhcmlhbnQ9XCJzdWNjZXNzXCJcbiAgICAgICAgICAgICAgICAgICAgICAgIGRpc2FibGVkPXshbmV3SXRlbS5sZW5ndGh9XG4gICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9e3N1Ym1pdHRpbmcgPyAnZGlzYWJsZWQnIDogJyd9XG4gICAgICAgICAgICAgICAgICAgID5cbiAgICAgICAgICAgICAgICAgICAgICAgIHtzdWJtaXR0aW5nID8gJ0FkZGluZy4uLicgOiAnQWRkIEl0ZW0nfVxuICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cbiAgICAgICAgICAgICAgICA8L0lucHV0R3JvdXAuQXBwZW5kPlxuICAgICAgICAgICAgPC9JbnB1dEdyb3VwPlxuICAgICAgICA8L0Zvcm0+XG4gICAgKTtcbn1cblxuZnVuY3Rpb24gSXRlbURpc3BsYXkoeyBpdGVtLCBvbkl0ZW1VcGRhdGUsIG9uSXRlbVJlbW92YWwgfSkge1xuICAgIGNvbnN0IHsgQ29udGFpbmVyLCBSb3csIENvbCwgQnV0dG9uIH0gPSBSZWFjdEJvb3RzdHJhcDtcblxuICAgIGNvbnN0IHRvZ2dsZUNvbXBsZXRpb24gPSAoKSA9PiB7XG4gICAgICAgIGZldGNoKGAvaXRlbXMvJHtpdGVtLmlkfWAsIHtcbiAgICAgICAgICAgIG1ldGhvZDogJ1BVVCcsXG4gICAgICAgICAgICBib2R5OiBKU09OLnN0cmluZ2lmeSh7XG4gICAgICAgICAgICAgICAgbmFtZTogaXRlbS5uYW1lLFxuICAgICAgICAgICAgICAgIGNvbXBsZXRlZDogIWl0ZW0uY29tcGxldGVkLFxuICAgICAgICAgICAgfSksXG4gICAgICAgICAgICBoZWFkZXJzOiB7ICdDb250ZW50LVR5cGUnOiAnYXBwbGljYXRpb24vanNvbicgfSxcbiAgICAgICAgfSlcbiAgICAgICAgICAgIC50aGVuKHIgPT4gci5qc29uKCkpXG4gICAgICAgICAgICAudGhlbihvbkl0ZW1VcGRhdGUpO1xuICAgIH07XG5cbiAgICBjb25zdCByZW1vdmVJdGVtID0gKCkgPT4ge1xuICAgICAgICBmZXRjaChgL2l0ZW1zLyR7aXRlbS5pZH1gLCB7IG1ldGhvZDogJ0RFTEVURScgfSkudGhlbigoKSA9PlxuICAgICAgICAgICAgb25JdGVtUmVtb3ZhbChpdGVtKSxcbiAgICAgICAgKTtcbiAgICB9O1xuXG4gICAgcmV0dXJuIChcbiAgICAgICAgPENvbnRhaW5lciBmbHVpZCBjbGFzc05hbWU9e2BpdGVtICR7aXRlbS5jb21wbGV0ZWQgJiYgJ2NvbXBsZXRlZCd9YH0+XG4gICAgICAgICAgICA8Um93PlxuICAgICAgICAgICAgICAgIDxDb2wgeHM9ezF9IGNsYXNzTmFtZT1cInRleHQtY2VudGVyXCI+XG4gICAgICAgICAgICAgICAgICAgIDxCdXR0b25cbiAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cInRvZ2dsZXNcIlxuICAgICAgICAgICAgICAgICAgICAgICAgc2l6ZT1cInNtXCJcbiAgICAgICAgICAgICAgICAgICAgICAgIHZhcmlhbnQ9XCJsaW5rXCJcbiAgICAgICAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9e3RvZ2dsZUNvbXBsZXRpb259XG4gICAgICAgICAgICAgICAgICAgICAgICBhcmlhLWxhYmVsPXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBpdGVtLmNvbXBsZXRlZFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA/ICdNYXJrIGl0ZW0gYXMgaW5jb21wbGV0ZSdcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgOiAnTWFyayBpdGVtIGFzIGNvbXBsZXRlJ1xuICAgICAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgICA+XG4gICAgICAgICAgICAgICAgICAgICAgICA8aVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT17YGZhciAke1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpdGVtLmNvbXBsZXRlZCA/ICdmYS1jaGVjay1zcXVhcmUnIDogJ2ZhLXNxdWFyZSdcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB9YH1cbiAgICAgICAgICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgICAgICAgIDwvQnV0dG9uPlxuICAgICAgICAgICAgICAgIDwvQ29sPlxuICAgICAgICAgICAgICAgIDxDb2wgeHM9ezEwfSBjbGFzc05hbWU9XCJuYW1lXCI+XG4gICAgICAgICAgICAgICAgICAgIHtpdGVtLm5hbWV9XG4gICAgICAgICAgICAgICAgPC9Db2w+XG4gICAgICAgICAgICAgICAgPENvbCB4cz17MX0gY2xhc3NOYW1lPVwidGV4dC1jZW50ZXIgcmVtb3ZlXCI+XG4gICAgICAgICAgICAgICAgICAgIDxCdXR0b25cbiAgICAgICAgICAgICAgICAgICAgICAgIHNpemU9XCJzbVwiXG4gICAgICAgICAgICAgICAgICAgICAgICB2YXJpYW50PVwibGlua1wiXG4gICAgICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXtyZW1vdmVJdGVtfVxuICAgICAgICAgICAgICAgICAgICAgICAgYXJpYS1sYWJlbD1cIlJlbW92ZSBJdGVtXCJcbiAgICAgICAgICAgICAgICAgICAgPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGkgY2xhc3NOYW1lPVwiZmEgZmEtdHJhc2ggdGV4dC1kYW5nZXJcIiAvPlxuICAgICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cbiAgICAgICAgICAgICAgICA8L0NvbD5cbiAgICAgICAgICAgIDwvUm93PlxuICAgICAgICA8L0NvbnRhaW5lcj5cbiAgICApO1xufVxuXG5SZWFjdERPTS5yZW5kZXIoPEFwcCAvPiwgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Jvb3QnKSk7XG4iXX0=</script></head>
+<body>
+    <div id="root"><div class="container"><div class="row"><div class="col-md-6 offset-md-3"><form class=""><div class="mb-3 input-group"><input placeholder="New Item" aria-describedby="basic-addon1" type="text" class="form-control" value=""><div class="input-group-append"><button type="submit" class="btn btn-success" disabled="">Add Item</button></div></div></form><div class="item completed container-fluid"><div class="row"><div class="text-center col-1"><button aria-label="Mark item as incomplete" type="button" class="toggles btn btn-link btn-sm"><i class="far fa-check-square"></i></button></div><div class="name col-10">dddd</div><div class="text-center remove col-1"><button aria-label="Remove Item" type="button" class="btn btn-link btn-sm"><i class="fa fa-trash text-danger"></i></button></div></div></div><div class="item false container-fluid"><div class="row"><div class="text-center col-1"><button aria-label="Mark item as complete" type="button" class="toggles btn btn-link btn-sm"><i class="far fa-square"></i></button></div><div class="name col-10">New note</div><div class="text-center remove col-1"><button aria-label="Remove Item" type="button" class="btn btn-link btn-sm"><i class="fa fa-trash text-danger"></i></button></div></div></div></div></div></div></div>
+    <script src="js/react.production.min.js"></script>
+    <script src="js/react-dom.production.min.js"></script>
+    <script src="js/react-bootstrap.js"></script>
+    <script src="js/babel.min.js"></script>
+    <script type="text/babel" src="js/app.js"></script>
+
+
+</body></html>
